@@ -10,6 +10,7 @@ interface Heading {
 
 interface RightSidebarProps {
   markdown: string;
+  githubUrl: string;
 }
 
 // Parse markdown and extract headings
@@ -72,7 +73,7 @@ function renderHeadings(headings: Heading[], depth = 0) {
   );
 }
 
-export function RightSidebar({ markdown }: RightSidebarProps) {
+export function RightSidebar({ markdown, githubUrl }: RightSidebarProps) {
   const headings = parseHeadings(markdown);
 
   return (
@@ -86,29 +87,12 @@ export function RightSidebar({ markdown }: RightSidebarProps) {
           <ul className="space-y-2 text-sm">
             <li>
               <a
-                href="#"
+                href={githubUrl}
+                target="_blank"
                 className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Github className="h-4 w-4" />
                 <span>GitHub</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Edit className="h-4 w-4" />
-                <span>Edit this page</span>
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="flex items-center space-x-2 text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <MessageSquare className="h-4 w-4" />
-                <span>Feedback</span>
               </a>
             </li>
           </ul>

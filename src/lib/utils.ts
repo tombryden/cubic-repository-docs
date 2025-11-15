@@ -1,6 +1,20 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
+}
+
+/**
+ * Get the GitHub URL for a given owner and repository.
+ */
+export function getGithubUrl(
+  owner: string,
+  repo: string,
+  withRepository: boolean = true
+) {
+  if (withRepository) {
+    return `https://github.com/${owner}/${repo}`;
+  }
+  return `https://github.com/${owner}`;
 }

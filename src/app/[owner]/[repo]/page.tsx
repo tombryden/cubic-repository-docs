@@ -4,8 +4,15 @@ import { MarkdownRenderer } from "./_components/markdown-renderer";
 import { LeftSidebar } from "./_components/left-sidebar";
 import { Header } from "./_components/header";
 import { RightSidebar } from "./_components/right-sidebar";
+import { getGithubUrl } from "@/lib/utils";
 
-export default function WikiPage() {
+export default async function WikiPage({
+  params,
+}: {
+  params: Promise<{ owner: string; repo: string }>;
+}) {
+  const { owner, repo } = await params;
+
   // Full markdown content
   const markdownContent = `
 # Overview
@@ -79,7 +86,7 @@ npm run dev
 
   return (
     <div>
-      <Header />
+      <Header githubUrl={getGithubUrl(owner, repo)} />
 
       <div className="px-4 container mx-auto">
         <div className="flex gap-6 lg:gap-10">
@@ -90,12 +97,20 @@ npm run dev
             <div className="max-w-4xl">
               {/* Breadcrumb */}
               <div className="mb-6 flex items-center space-x-2 text-sm text-muted-foreground">
-                <a href="#" className="hover:text-foreground transition-colors">
-                  owner
+                <a
+                  href={getGithubUrl(owner, repo, false)}
+                  className="hover:text-foreground transition-colors"
+                  target="_blank"
+                >
+                  {owner}
                 </a>
                 <span>/</span>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  repository
+                <a
+                  href={getGithubUrl(owner, repo)}
+                  className="hover:text-foreground transition-colors"
+                  target="_blank"
+                >
+                  {repo}
                 </a>
               </div>
 
@@ -118,7 +133,10 @@ npm run dev
             </div>
           </main>
 
-          <RightSidebar markdown={markdownContent} />
+          <RightSidebar
+            markdown={markdownContent}
+            githubUrl={getGithubUrl(owner, repo)}
+          />
         </div>
       </div>
     </div>
