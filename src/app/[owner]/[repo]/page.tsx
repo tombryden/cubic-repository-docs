@@ -5,6 +5,7 @@ import { LeftSidebar } from "./_components/left-sidebar";
 import { Header } from "./_components/header";
 import { RightSidebar } from "./_components/right-sidebar";
 import { getGithubUrl } from "@/lib/utils";
+import { GetWikiPageResponseDto } from "@/app/api/wiki/[wikiSlug]/[pageSlug]/route";
 
 export default async function WikiPage({
   params,
@@ -83,6 +84,12 @@ npm run dev
 
 > **Note:** Make sure you have Node.js version 18 or higher installed before starting.
 `;
+
+  const resp = await fetch(`http://localhost:3000/api/wiki/${owner}/${repo}`);
+  if (resp.ok) {
+    const data: GetWikiPageResponseDto = await resp.json();
+    console.log(data);
+  }
 
   return (
     <div>

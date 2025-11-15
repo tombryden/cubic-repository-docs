@@ -1,0 +1,25 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_URL")
+}
+
+model Wiki {
+    id         String     @id
+    repository String
+    pages      WikiPage[]
+}
+
+model WikiPage {
+    id              String @id
+    wikiId          String
+    wiki            Wiki   @relation(fields: [wikiId], references: [id])
+    title           String
+    slug            String
+    markdownContent String
+    order           Int
+}

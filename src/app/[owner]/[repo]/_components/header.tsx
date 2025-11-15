@@ -16,13 +16,13 @@ export function Header({ githubUrl }: HeaderProps) {
           </div>
         </Link>
         <div className="ml-auto flex items-center space-x-2">
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="icon-sm" asChild>
             <a href={githubUrl} target="_blank">
-              <Github className="h-4 w-4" />
+              <Github />
             </a>
           </Button>
-          <Button variant="ghost" size="sm">
-            <Search className="h-4 w-4" />
+          <Button variant="ghost" size="icon-sm">
+            <Search />
           </Button>
         </div>
       </div>
