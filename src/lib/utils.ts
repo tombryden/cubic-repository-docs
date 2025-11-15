@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import slugify from "slugify";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -17,4 +18,8 @@ export function getGithubUrl(
     return `https://github.com/${owner}/${repo}`;
   }
   return `https://github.com/${owner}`;
+}
+
+export function getSlug(text: string) {
+  return slugify(text, { lower: true, strict: true });
 }

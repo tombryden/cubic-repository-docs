@@ -1,5 +1,5 @@
-import { Github, Edit, MessageSquare } from "lucide-react";
-import slugify from "slugify";
+import { getSlug } from "@/lib/utils";
+import { Github } from "lucide-react";
 
 interface Heading {
   id: string;
@@ -24,7 +24,7 @@ function parseHeadings(markdown: string): Heading[] {
     if (match) {
       const level = match[1].length;
       const text = match[2].trim();
-      const id = slugify(text, { lower: true, strict: true });
+      const id = getSlug(text);
 
       const heading: Heading = {
         id,

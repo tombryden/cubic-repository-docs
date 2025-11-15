@@ -1,25 +1,59 @@
+import { getSlug } from "@/lib/utils";
 import { Info } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+
+/**
+ * Get the text content of the markdown children
+ */
+function getTextContent(children: React.ReactNode): string {
+  if (typeof children !== "string") {
+    throw new Error("Children must be a string");
+  }
+  return children;
+}
 
 export function MarkdownRenderer({ children }: { children: string }) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
-        h1: ({ children }) => (
-          <h1 className="text-4xl font-bold mb-6 mt-8 pb-3 border-b border-border first:mt-0">
-            {children}
-          </h1>
-        ),
-        h2: ({ children }) => (
-          <h2 className="text-2xl font-semibold mb-4 mt-12 pb-2 border-b border-border first:mt-0">
-            {children}
-          </h2>
-        ),
-        h3: ({ children }) => (
-          <h3 className="text-xl font-semibold mb-3 mt-8">{children}</h3>
-        ),
+        h1: ({ children }) => {
+          const text = getTextContent(children);
+          const id = getSlug(text);
+          return (
+            <h1
+              id={id}
+              className="text-4xl font-bold mb-6 mt-8 pb-3 border-b border-border first:mt-0 scroll-mt-20"
+            >
+              {children}
+            </h1>
+          );
+        },
+        h2: ({ children }) => {
+          const text = getTextContent(children);
+          const id = getSlug(text);
+          return (
+            <h2
+              id={id}
+              className="text-2xl font-semibold mb-4 mt-12 pb-2 border-b border-border first:mt-0 scroll-mt-20"
+            >
+              {children}
+            </h2>
+          );
+        },
+        h3: ({ children }) => {
+          const text = getTextContent(children);
+          const id = getSlug(text);
+          return (
+            <h3
+              id={id}
+              className="text-xl font-semibold mb-3 mt-8 scroll-mt-20"
+            >
+              {children}
+            </h3>
+          );
+        },
         p: ({ children }) => (
           <p className="text-muted-foreground leading-relaxed mb-4">
             {children}
