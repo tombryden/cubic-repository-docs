@@ -8,7 +8,7 @@ import {
 
 export default function Home() {
   return (
-    <div className="h-svh flex flex-col items-center justify-center relative">
+    <main className="flex flex-col items-center justify-center relative bg-[url('/images/blur.png')] bg-cover bg-center min-h-svh">
       <div className="max-w-3xl w-full flex flex-col justify-center items-center px-6">
         <div className="text-center flex flex-col items-center justify-center">
           <h1 className="text-5xl mb-3 bg-linear-to-r from-white to-[#BABABA] bg-clip-text text-transparent font-semibold leading-tight">
@@ -44,6 +44,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
