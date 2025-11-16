@@ -106,10 +106,14 @@ export function MarkdownRenderer({
           </p>
         ),
         ul: ({ children }) => (
-          <ul className="space-y-2 mb-6 ml-4">{children}</ul>
+          <ul className="list-disc space-y-2 mb-6 ml-6 marker:text-muted-foreground">
+            {children}
+          </ul>
         ),
         li: ({ children }) => (
-          <li className="text-muted-foreground leading-relaxed">{children}</li>
+          <li className="text-muted-foreground leading-relaxed pl-2">
+            {children}
+          </li>
         ),
         code: ({ className, children, ...props }) => {
           const isInline = !className;
