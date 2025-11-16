@@ -41,7 +41,28 @@ const wikiPageGenerationEventSchema = z.object({
 });
 
 export const repositoryAnalyser = inngest.createFunction(
-  { id: "repository-analyser" },
+  {
+    id: "repository-analyser",
+    onFailure: async ({ error, event }) => {
+      // Update wiki status to FAILED when the function fails
+      const validationResult = repositoryAnalysisEventSchema.safeParse(
+        event.data
+      );
+
+      if (validationResult.success) {
+        const { owner, repo } = validationResult.data;
+        const existingWiki = await wikiRepository.findOneByRepository(
+          owner,
+          repo
+        );
+
+        if (existingWiki) {
+          await wikiRepository.updateStatus(existingWiki.id, WikiStatus.FAILED);
+          return "Successfully set failed status";
+        }
+      }
+    },
+  },
   { event: "reposcribe/repository-analysis" },
   async ({ event, step }) => {
     // Validate event data

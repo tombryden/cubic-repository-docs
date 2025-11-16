@@ -3,50 +3,20 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, Github, Sparkles, FileText } from "lucide-react";
 import { getGithubUrl } from "@/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { UseMutationResult } from "@tanstack/react-query";
 import type { GenerateWikiResponseDto } from "@/app/api/wiki/[owner]/[repo]/generate/route";
-import type { ApiResponse } from "@/api/infrastructure/adaptors/inbound/http/dtos/api-response";
+
+interface WikiEmptyStateProps {
+  owner: string;
+  repo: string;
+  generateMutation: UseMutationResult<GenerateWikiResponseDto, Error, void>;
+}
 
 export function WikiEmptyState({
   owner,
   repo,
-}: {
-  owner: string;
-  repo: string;
-}) {
-  const queryClient = useQueryClient();
-
-  const generateWikiMutation = useMutation<
-    GenerateWikiResponseDto,
-    Error,
-    void
-  >({
-    mutationFn: async () => {
-      const response = await fetch(`/api/wiki/${owner}/${repo}/generate`, {
-        method: "POST",
-      });
-
-      const data =
-        (await response.json()) as ApiResponse<GenerateWikiResponseDto>;
-
-      if (!response.ok || !data.success) {
-        throw new Error(
-          data.success === false
-            ? data.error
-            : "Failed to start wiki generation"
-        );
-      }
-
-      return data.data;
-    },
-    onSuccess: () => {
-      // Invalidate and refetch the wiki pages query to show the generating state
-      queryClient.invalidateQueries({
-        queryKey: [`wiki/${owner}/${repo}/pages`],
-      });
-    },
-  });
-
+  generateMutation: generateWikiMutation,
+}: WikiEmptyStateProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">

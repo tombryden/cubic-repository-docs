@@ -5,9 +5,15 @@ interface WikiErrorStateProps {
   owner: string;
   repo: string;
   onRetry: () => void;
+  isRetrying?: boolean;
 }
 
-export function WikiErrorState({ owner, repo, onRetry }: WikiErrorStateProps) {
+export function WikiErrorState({
+  owner,
+  repo,
+  onRetry,
+  isRetrying = false,
+}: WikiErrorStateProps) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
@@ -54,9 +60,12 @@ export function WikiErrorState({ owner, repo, onRetry }: WikiErrorStateProps) {
               className="w-full"
               onClick={onRetry}
               variant="default"
+              disabled={isRetrying}
             >
-              <RefreshCw className="w-5 h-5" />
-              Try Again
+              <RefreshCw
+                className={`w-5 h-5 ${isRetrying ? "animate-spin" : ""}`}
+              />
+              {isRetrying ? "Retrying..." : "Try Again"}
             </Button>
             <p className="text-center text-xs text-muted-foreground">
               If the problem persists, please contact support
