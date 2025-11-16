@@ -2,8 +2,6 @@
 
 import { getGithubUrl } from "@/lib/utils";
 import { MarkdownRenderer } from "./_components/markdown-renderer";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { RightSidebar } from "./_components/right-sidebar";
 import { WikiPageSkeleton } from "./_components/wiki-page-skeleton";
 import { useQuery } from "@tanstack/react-query";
@@ -59,18 +57,6 @@ export default function WikiPage({
               <MarkdownRenderer owner={owner} repo={repo}>
                 {pageData.content}
               </MarkdownRenderer>
-            </div>
-
-            {/* Navigation Footer */}
-            <div className="mt-12 pt-8 border-t border-border flex items-center justify-between">
-              <Button variant="outline" className="gap-2">
-                <ChevronLeft className="h-4 w-4" />
-                Previous
-              </Button>
-              <Button className="gap-2">
-                Next
-                <ChevronRight className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </main>

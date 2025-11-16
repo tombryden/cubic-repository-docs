@@ -27,12 +27,6 @@ export function WikiPageSkeleton() {
             <Skeleton className="h-4 w-full" />
             <Skeleton className="h-4 w-3/4" />
           </div>
-
-          {/* Navigation Footer Skeleton */}
-          <div className="mt-12 pt-8 border-t border-border flex items-center justify-between">
-            <Skeleton className="h-10 w-28" />
-            <Skeleton className="h-10 w-24" />
-          </div>
         </div>
       </main>
 
