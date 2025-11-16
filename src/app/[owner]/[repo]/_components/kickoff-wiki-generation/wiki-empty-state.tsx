@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, Github, Sparkles, FileText } from "lucide-react";
 import { getGithubUrl } from "@/lib/utils";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { GenerateWikiResponseDto } from "@/app/api/wiki/[owner]/[repo]/generate/route";
 import type { ApiResponse } from "@/api/infrastructure/adaptors/inbound/http/dtos/api-response";
 
@@ -14,6 +14,8 @@ export function WikiEmptyState({
   owner: string;
   repo: string;
 }) {
+  const queryClient = useQueryClient();
+
   const generateWikiMutation = useMutation<
     GenerateWikiResponseDto,
     Error,
@@ -36,6 +38,12 @@ export function WikiEmptyState({
       }
 
       return data.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch the wiki pages query to show the generating state
+      queryClient.invalidateQueries({
+        queryKey: [`wiki/${owner}/${repo}/pages`],
+      });
     },
   });
 

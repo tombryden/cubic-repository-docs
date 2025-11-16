@@ -55,18 +55,20 @@ export const repositoryAnalyser = inngest.createFunction(
     }
     const { owner, repo } = validationResult.data;
 
-    // Step 1: Store wiki in db with 'generating' status
-    const wiki = await step.run("store-wiki", async () => {
-      // Check if it is currently generating, error if it is
+    // Step 1: Update wiki status from STARTED to GENERATING
+    const wiki = await step.run("set-generating-status", async () => {
       const existingWiki = await wikiRepository.findOneByRepository(
         owner,
         repo
       );
+
+      // If wiki is already generating, error to prevent duplicate processing
       if (existingWiki && existingWiki.status === WikiStatus.GENERATING) {
         throw new NonRetriableError("Wiki is currently generating");
       }
 
-      // Create or update wiki with 'generating' status
+      // If wiki doesn't exist or is in STARTED / FAILED status, set to GENERATING
+      // STARTED is set by the API endpoint, this confirms actual processing has begun
       return await wikiRepository.upsert(
         new Wiki({
           repository: Wiki.getRepositoryString(owner, repo),

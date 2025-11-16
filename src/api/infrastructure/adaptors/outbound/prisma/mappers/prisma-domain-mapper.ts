@@ -20,7 +20,7 @@ export class PrismaDomainMapper {
       return {
         id: wiki.id,
         repository: wiki.repository,
-        status: PrismaWikiStatus.GENERATING,
+        status: wiki.status as PrismaWikiStatus,
       };
     },
   };

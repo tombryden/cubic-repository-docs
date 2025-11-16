@@ -1,6 +1,7 @@
 import { BaseEntity } from "./base-entity";
 
 export enum WikiStatus {
+  STARTED = "STARTED",
   GENERATING = "GENERATING",
   GENERATED = "GENERATED",
   FAILED = "FAILED",
