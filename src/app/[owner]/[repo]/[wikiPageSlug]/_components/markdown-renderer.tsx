@@ -25,7 +25,8 @@ function processCitations(
   branch: string = "main"
 ): string {
   // Match citations in the format [filepath:startLine-endLine;...]
-  const citationRegex = /\[([^\]]+:[0-9]+-[0-9]+(?:;[^\]]+:[0-9]+-[0-9]+)*)\]/g;
+  // Use .+? (non-greedy) to allow brackets in filepath
+  const citationRegex = /\[(.+?:[0-9]+-[0-9]+(?:;.+?:[0-9]+-[0-9]+)*)\]/g;
 
   return content.replace(citationRegex, (match, citationsGroup) => {
     // Split multiple citations by semicolon
