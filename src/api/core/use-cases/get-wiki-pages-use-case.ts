@@ -3,10 +3,11 @@ import { type WikiPageRepositoryPort } from "../ports/outbound/wiki-page-reposit
 import { DI } from "@/api/infrastructure/di-tokens";
 import { WikiPage } from "../entities/wiki-page";
 import { type WikiRepositoryPort } from "../ports/outbound/wiki-repository-port";
+import { Wiki } from "../entities/wiki";
 
 interface GetWikiPagesResponse {
+  wiki?: Wiki;
   pages: WikiPage[];
-  exists: boolean;
 }
 
 /**
@@ -22,15 +23,11 @@ export class GetWikiPagesUseCase {
   ) {}
 
   async execute(owner: string, repo: string): Promise<GetWikiPagesResponse> {
-    const wikiExists = await this.wikiRepository.existsByRepository(
-      owner,
-      repo
-    );
+    const wiki = await this.wikiRepository.findOneByRepository(owner, repo);
 
-    if (!wikiExists) {
+    if (!wiki) {
       return {
         pages: [],
-        exists: false,
       };
     }
 
@@ -38,7 +35,7 @@ export class GetWikiPagesUseCase {
 
     return {
       pages,
-      exists: true,
+      wiki,
     };
   }
 }

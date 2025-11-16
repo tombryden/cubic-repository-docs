@@ -6,9 +6,10 @@ import {
   createSuccessResponse,
   createErrorResponse,
 } from "@/api/infrastructure/adaptors/inbound/http/dtos/api-response";
+import { Wiki } from "@/api/core/entities/wiki";
 
 export interface GetWikiResponseDto {
-  exists: boolean;
+  wiki?: Wiki;
   pages: {
     title: string;
     slug: string;
@@ -27,7 +28,7 @@ export async function GET(
 
     return createSuccessResponse<GetWikiResponseDto>({
       pages: res.pages.map((pg) => ({ title: pg.title, slug: pg.slug })),
-      exists: res.exists,
+      wiki: res.wiki,
     });
   } catch (error) {
     return createErrorResponse(

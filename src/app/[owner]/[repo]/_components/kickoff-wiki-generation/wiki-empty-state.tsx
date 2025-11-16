@@ -3,6 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { BookOpen, Github, Sparkles, FileText } from "lucide-react";
 import { getGithubUrl } from "@/lib/utils";
+import { useMutation } from "@tanstack/react-query";
+import type { GenerateWikiResponseDto } from "@/app/api/wiki/[owner]/[repo]/generate/route";
+import type { ApiResponse } from "@/api/infrastructure/adaptors/inbound/http/dtos/api-response";
 
 export function WikiEmptyState({
   owner,
@@ -11,10 +14,30 @@ export function WikiEmptyState({
   owner: string;
   repo: string;
 }) {
-  const handleGenerateWiki = () => {
-    // TODO: Implement wiki generation logic
-    console.log("Generating wiki for", owner, repo);
-  };
+  const generateWikiMutation = useMutation<
+    GenerateWikiResponseDto,
+    Error,
+    void
+  >({
+    mutationFn: async () => {
+      const response = await fetch(`/api/wiki/${owner}/${repo}/generate`, {
+        method: "POST",
+      });
+
+      const data =
+        (await response.json()) as ApiResponse<GenerateWikiResponseDto>;
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.success === false
+            ? data.error
+            : "Failed to start wiki generation"
+        );
+      }
+
+      return data.data;
+    },
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
@@ -93,10 +116,24 @@ export function WikiEmptyState({
 
           {/* CTA Button */}
           <div className="space-y-4">
-            <Button size="lg" className="w-full" onClick={handleGenerateWiki}>
+            <Button
+              size="lg"
+              className="w-full"
+              onClick={() => generateWikiMutation.mutate()}
+              disabled={generateWikiMutation.isPending}
+            >
               <Sparkles className="w-5 h-5" />
-              Generate Wiki Documentation
+              {generateWikiMutation.isPending
+                ? "Starting generation..."
+                : "Generate Wiki Documentation"}
             </Button>
+            {generateWikiMutation.isError && (
+              <p className="text-center text-sm text-destructive">
+                {generateWikiMutation.error instanceof Error
+                  ? generateWikiMutation.error.message
+                  : "An error occurred"}
+              </p>
+            )}
             <p className="text-center text-xs text-muted-foreground">
               This will analyse your repository and create comprehensive
               documentation

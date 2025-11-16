@@ -22,7 +22,7 @@ export function KickoffWikiGeneration({
 
   if (isLoading) return <div>Loading...</div>;
 
-  if (!data?.exists) return <WikiEmptyState owner={owner} repo={repo} />;
+  if (!data?.wiki) return <WikiEmptyState owner={owner} repo={repo} />;
 
   // Render the skeleton + left sidenav
   return (

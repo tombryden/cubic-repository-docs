@@ -410,7 +410,7 @@ Please create detailed, well-structured documentation that:
 7. Is organized in a logical, easy-to-follow structure
 8. Includes helpful context and explanations for developers
 
-Generate ONLY the markdown content for the wiki page body.
+Generate ONLY the markdown content for the wiki page body. Do NOT include a table of contents.
             `,
           },
         ],
