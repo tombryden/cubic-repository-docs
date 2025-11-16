@@ -34,6 +34,6 @@ export class Wiki extends BaseEntity {
    * @returns The repository string
    */
   static getRepositoryString(owner: string, repo: string): string {
-    return `${owner}/${repo}`;
+    return `${owner}/${repo}`.toLowerCase();
   }
 }
