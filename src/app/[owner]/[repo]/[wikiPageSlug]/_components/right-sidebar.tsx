@@ -78,7 +78,7 @@ export function RightSidebar({ markdown, githubUrl }: RightSidebarProps) {
 
   return (
     <aside className="hidden xl:block w-64 shrink-0">
-      <div className="sticky top-20 py-8 pl-4">
+      <div className="sticky top-20 py-8 pl-4 max-h-[calc(100vh-5rem)] overflow-y-auto">
         <h4 className="mb-4 text-sm font-semibold">On this page</h4>
         <nav>{renderHeadings(headings)}</nav>
 
