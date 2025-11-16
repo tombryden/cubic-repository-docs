@@ -10,7 +10,7 @@ export enum WikiStatus {
 export class Wiki extends BaseEntity {
   constructor(data: Omit<Wiki, "id"> & { id?: string }) {
     super(data.id);
-    this.repository = data.repository;
+    this.repository = data.repository.toLowerCase();
     this.status = data.status;
     this.branch = data.branch;
   }
