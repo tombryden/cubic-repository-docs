@@ -3,6 +3,9 @@
 import { useQuery } from "@tanstack/react-query";
 import type { GetWikiResponseDto } from "@/app/api/wiki/[owner]/[repo]/pages/route";
 import { WikiEmptyState } from "./wiki-empty-state";
+import { Header } from "../header";
+import { getGithubUrl } from "@/lib/utils";
+import { LeftSidebar } from "../left-sidebar";
 
 export function KickoffWikiGeneration({
   owner,
@@ -21,5 +24,19 @@ export function KickoffWikiGeneration({
 
   if (!data?.exists) return <WikiEmptyState owner={owner} repo={repo} />;
 
-  return children;
+  // Render the skeleton + left sidenav
+  return (
+    <div>
+      <Header githubUrl={getGithubUrl(owner, repo)} />
+
+      <div className="px-4 container mx-auto">
+        <div className="flex gap-6 lg:gap-10">
+          <LeftSidebar />
+
+          {/* Wiki page renders the main content + right sidenav */}
+          {children}
+        </div>
+      </div>
+    </div>
+  );
 }
