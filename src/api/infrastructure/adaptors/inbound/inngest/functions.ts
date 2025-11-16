@@ -5,6 +5,15 @@ import { openai } from "@ai-sdk/openai";
 import { generateObject, generateText } from "ai";
 import { z } from "zod";
 import { ENV } from "@/lib/vars";
+import { container } from "tsyringe";
+import { DI } from "@/api/infrastructure/di-tokens";
+import { WikiRepositoryPort } from "@/api/core/ports/outbound/wiki-repository-port";
+import { Wiki, WikiStatus } from "@/api/core/entities/wiki";
+
+// Repositories
+const wikiRepository = container.resolve<WikiRepositoryPort>(
+  DI.WIKI_REPOSITORY
+);
 
 const octokit = new Octokit({
   auth: ENV.GITHUB_TOKEN,
@@ -39,7 +48,27 @@ export const repositoryAnalyser = inngest.createFunction(
     }
     const { owner, repo } = validationResult.data;
 
-    // Step 1: Pull repository file tree
+    // Step 1: Store wiki in db with 'generating' status
+    const wiki = await step.run("store-wiki", async () => {
+      // Check if it is currently generating, error if it is
+      const existingWiki = await wikiRepository.findOneByRepository(
+        owner,
+        repo
+      );
+      if (existingWiki && existingWiki.status === WikiStatus.GENERATING) {
+        throw new NonRetriableError("Wiki is currently generating");
+      }
+
+      // Create wiki with 'generating' status
+      return await wikiRepository.insert(
+        new Wiki({
+          repository: Wiki.getRepositoryString(owner, repo),
+          status: WikiStatus.GENERATING,
+        })
+      );
+    });
+
+    // Step 2: Pull repository file tree
     const tree = await step.run("pull-repository-tree", async () => {
       try {
         // Check the github url exists
@@ -73,7 +102,7 @@ export const repositoryAnalyser = inngest.createFunction(
       }
     });
 
-    // Step 2: Pull the README file
+    // Step 3: Pull the README file
     const readme = await step.run("pull-readme", async () => {
       try {
         const readmeResponse = await octokit.repos.getReadme({
@@ -100,7 +129,7 @@ export const repositoryAnalyser = inngest.createFunction(
       }
     });
 
-    // Step 3: Analyse the tree into user features with their corresponding files using AI.
+    // Step 4: Analyse the tree into user features with their corresponding files using AI.
     const analysis = await step.run("analyse-tree", async () => {
       const tidiedTree = tree.data.tree
         .map((item) => ({
@@ -195,7 +224,7 @@ export const repositoryAnalyser = inngest.createFunction(
       return object;
     });
 
-    // Step 4: fan out the wiki generation for each page
+    // Step 5: fan out the wiki generation for each page
     await step.sendEvent(
       "send-wiki-page-generation-events",
       analysis.pages.map((page) => ({
@@ -314,6 +343,11 @@ ${file.content}
     const content = await step.run("generate-content", async () => {
       const { text } = await generateText({
         model: openai("gpt-5-mini"),
+        providerOptions: {
+          openai: {
+            reasoningEffort: "high", // to try and prevent hallucinations
+          },
+        },
         messages: [
           {
             role: "user",
@@ -376,10 +410,8 @@ Generate ONLY the markdown content for the wiki page body.
       return text;
     });
 
-    // Step 3: Save to database
-    await step.run("save-page", async () => {
-      // Save the generated page to your DB
-    });
+    // Step 3: Save page to database
+    await step.run("save-page", async () => {});
 
     return { content, fileContents };
   }

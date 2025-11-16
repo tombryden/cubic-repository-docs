@@ -8,9 +8,16 @@ datasource db {
     directUrl = env("DIRECT_URL")
 }
 
+enum WikiStatus {
+    GENERATING
+    GENERATED
+    FAILED
+}
+
 model Wiki {
     id         String     @id
-    repository String
+    repository String     @unique
+    status     WikiStatus
     pages      WikiPage[]
 }
 

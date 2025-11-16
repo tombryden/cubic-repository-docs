@@ -21,8 +21,11 @@ export class GetWikiPagesUseCase {
     private readonly wikiRepository: WikiRepositoryPort
   ) {}
 
-  async execute(wikiSlug: string): Promise<GetWikiPagesResponse> {
-    const wikiExists = await this.wikiRepository.existsBySlug(wikiSlug);
+  async execute(owner: string, repo: string): Promise<GetWikiPagesResponse> {
+    const wikiExists = await this.wikiRepository.existsByRepository(
+      owner,
+      repo
+    );
 
     if (!wikiExists) {
       return {
@@ -31,7 +34,7 @@ export class GetWikiPagesUseCase {
       };
     }
 
-    const pages = await this.wikiPageRepository.findByWikiSlug(wikiSlug);
+    const pages = await this.wikiPageRepository.findByRepository(owner, repo);
 
     return {
       pages,

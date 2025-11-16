@@ -1,3 +1,5 @@
+import "@/api/infrastructure/di";
+
 import { inngest } from "@/api/infrastructure/adaptors/inbound/inngest/client";
 import {
   repositoryAnalyser,

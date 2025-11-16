@@ -21,10 +21,9 @@ export async function GET(
 ) {
   try {
     const { owner, repo } = await params;
-    const wikiSlug = `${owner}/${repo}`;
 
     const useCase = container.resolve(GetWikiPagesUseCase);
-    const res = await useCase.execute(wikiSlug);
+    const res = await useCase.execute(owner, repo);
 
     return createSuccessResponse<GetWikiResponseDto>({
       pages: res.pages.map((pg) => ({ title: pg.title, slug: pg.slug })),

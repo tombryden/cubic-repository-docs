@@ -19,14 +19,15 @@ export async function GET(
 ) {
   try {
     const { owner, repo } = await params;
-    const wikiSlug = `${owner}/${repo}`;
-    
+
     // Get the page slug from the query string (defaulting to 'home')
     const url = new URL(_req.url);
-    const pageSlug = url.searchParams.get('page') || 'home';
+    const pageSlug = url.searchParams.get("page") || "home";
 
-    const getWikiPageBySlugUseCase = container.resolve(GetWikiPageBySlugUseCase);
-    const res = await getWikiPageBySlugUseCase.execute(wikiSlug, pageSlug);
+    const getWikiPageBySlugUseCase = container.resolve(
+      GetWikiPageBySlugUseCase
+    );
+    const res = await getWikiPageBySlugUseCase.execute(owner, repo, pageSlug);
 
     if (res === null) {
       return createErrorResponse("Wiki page not found", 404);
