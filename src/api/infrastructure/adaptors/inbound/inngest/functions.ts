@@ -46,7 +46,7 @@ export const repositoryAnalyser = inngest.createFunction(
     onFailure: async ({ event }) => {
       // Update wiki status to FAILED when the function fails
       const validationResult = repositoryAnalysisEventSchema.safeParse(
-        event.data
+        event.data.event.data
       );
 
       if (!validationResult.success) {
