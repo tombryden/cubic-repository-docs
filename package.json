@@ -11,11 +11,15 @@
     "prisma:migrate": "prisma migrate dev --schema=./src/api/infrastructure/adaptors/outbound/prisma/schema.prisma"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.67",
+    "@octokit/rest": "^22.0.1",
     "@prisma/client": "6.19.0",
     "@radix-ui/react-slot": "^1.2.4",
     "@tanstack/react-query": "^5.90.9",
+    "ai": "^5.0.93",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "inngest": "^3.45.1",
     "lucide-react": "^0.553.0",
     "next": "16.0.3",
     "prisma": "^6.19.0",
