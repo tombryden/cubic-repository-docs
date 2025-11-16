@@ -61,7 +61,7 @@ Given the **5-hour time constraint**, the AI uses GitHub's REST API rather than 
 
 - Vercel's 512MB `/tmp` limit prevents `git clone`
 - Would need separate infrastructure (AWS Lambda + EFS)
-- MVP prioritized demonstrating architecture and a complete product over optimization
+- MVP prioritised demonstrating architecture and a complete product over optimisation
 
 **Trade-offs:**
 
