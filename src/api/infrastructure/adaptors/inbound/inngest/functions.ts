@@ -49,17 +49,21 @@ export const repositoryAnalyser = inngest.createFunction(
         event.data
       );
 
-      if (validationResult.success) {
-        const { owner, repo } = validationResult.data;
-        const existingWiki = await wikiRepository.findOneByRepository(
-          owner,
-          repo
+      if (!validationResult.success) {
+        throw new NonRetriableError(
+          `Invalid event data: ${validationResult.error.message}`
         );
+      }
 
-        if (existingWiki) {
-          await wikiRepository.updateStatus(existingWiki.id, WikiStatus.FAILED);
-          return "Successfully set failed status";
-        }
+      const { owner, repo } = validationResult.data;
+      const existingWiki = await wikiRepository.findOneByRepository(
+        owner,
+        repo
+      );
+
+      if (existingWiki) {
+        await wikiRepository.updateStatus(existingWiki.id, WikiStatus.FAILED);
+        return "Successfully set failed status";
       }
     },
   },
