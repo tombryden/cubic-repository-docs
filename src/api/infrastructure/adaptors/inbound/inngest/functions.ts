@@ -43,7 +43,7 @@ const wikiPageGenerationEventSchema = z.object({
 export const repositoryAnalyser = inngest.createFunction(
   {
     id: "repository-analyser",
-    onFailure: async ({ error, event }) => {
+    onFailure: async ({ event }) => {
       // Update wiki status to FAILED when the function fails
       const validationResult = repositoryAnalysisEventSchema.safeParse(
         event.data

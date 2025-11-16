@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "check-types": "tsc --noEmit",
     "prisma:generate": "prisma generate --schema=./src/api/infrastructure/adaptors/outbound/prisma/schema.prisma",
     "prisma:migrate": "prisma migrate dev --schema=./src/api/infrastructure/adaptors/outbound/prisma/schema.prisma"
   },
