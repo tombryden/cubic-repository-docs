@@ -303,7 +303,7 @@ export const wikiGenerator = inngest.createFunction(
     id: "wiki-page-generator",
     concurrency: [
       {
-        limit: 10, // So there's less risk of hitting GitHub's 100 req/s limit
+        limit: 5, // Because I don't have Inngest premium + Less risk of hitting GitHub's rate limit of 100 req/s
       },
     ],
   },
