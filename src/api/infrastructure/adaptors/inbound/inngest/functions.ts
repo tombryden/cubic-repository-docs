@@ -234,15 +234,7 @@ export const repositoryAnalyser = inngest.createFunction(
                   `
               ),
             })
-          ).describe(`
-            The pages of the wiki.
-            
-            IMPORTANT! These should be what the software does for users, not just how they are technically organised.
-
-            Good structure: User onboarding flow, authentication, feature X, feature Y, feature Z
-
-            Bad structure: Frontend, API, backend, utils
-            `),
+          ),
         }),
         messages: [
           {
@@ -256,6 +248,10 @@ export const repositoryAnalyser = inngest.createFunction(
               </readme>
 
               I want to create a 4-12 page wiki for this repository. Determine the most logical structure for a wiki based on the repository's content.
+            
+              IMPORTANT! These should be what the software does for users, not just how they are technically organised, it should be a feature-driven wiki.
+              Good pages structure: User onboarding flow, authentication, feature X, feature Y, feature Z
+              Bad pages structure: Frontend, API, backend, utils
               `,
           },
         ],
