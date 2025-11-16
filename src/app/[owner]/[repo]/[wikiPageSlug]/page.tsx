@@ -5,6 +5,7 @@ import { MarkdownRenderer } from "./_components/markdown-renderer";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { RightSidebar } from "./_components/right-sidebar";
+import { WikiPageSkeleton } from "./_components/wiki-page-skeleton";
 import { useQuery } from "@tanstack/react-query";
 import type { GetWikiPageResponseDto } from "@/app/api/wiki/[owner]/[repo]/[pageSlug]/route";
 import { use } from "react";
@@ -21,7 +22,7 @@ export default function WikiPage({
   });
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <WikiPageSkeleton />;
   }
 
   if (!pageData) {

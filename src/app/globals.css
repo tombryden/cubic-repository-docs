@@ -191,6 +191,7 @@
   }
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
   }
   body {
     @apply bg-background text-foreground;
