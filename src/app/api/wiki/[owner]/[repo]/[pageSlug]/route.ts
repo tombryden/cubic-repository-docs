@@ -15,14 +15,12 @@ export interface GetWikiPageResponseDto {
 
 export async function GET(
   _req: Request,
-  { params }: { params: Promise<{ owner: string; repo: string }> }
+  {
+    params,
+  }: { params: Promise<{ owner: string; repo: string; pageSlug: string }> }
 ) {
   try {
-    const { owner, repo } = await params;
-
-    // Get the page slug from the query string (defaulting to 'home')
-    const url = new URL(_req.url);
-    const pageSlug = url.searchParams.get("page") || "home";
+    const { owner, repo, pageSlug } = await params;
 
     const getWikiPageBySlugUseCase = container.resolve(
       GetWikiPageBySlugUseCase

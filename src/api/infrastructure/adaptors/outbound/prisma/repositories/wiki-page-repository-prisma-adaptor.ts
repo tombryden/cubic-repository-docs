@@ -28,6 +28,7 @@ export class WikiPageRepositoryPrismaAdaptor implements WikiPageRepositoryPort {
 
     const pages = await this.prisma.wikiPage.findMany({
       where: { wiki: { repository } },
+      orderBy: { order: "asc" },
     });
 
     return pages.map(PrismaDomainMapper.wikiPage.toDomain);
