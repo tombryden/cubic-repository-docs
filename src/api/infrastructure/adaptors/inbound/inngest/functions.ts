@@ -80,29 +80,7 @@ export const repositoryAnalyser = inngest.createFunction(
     }
     const { owner, repo } = validationResult.data;
 
-    // Step 1: Update wiki status from STARTED to GENERATING
-    const wiki = await step.run("set-generating-status", async () => {
-      const existingWiki = await wikiRepository.findOneByRepository(
-        owner,
-        repo
-      );
-
-      // If wiki is already generating, error to prevent duplicate processing
-      if (existingWiki && existingWiki.status === WikiStatus.GENERATING) {
-        throw new NonRetriableError("Wiki is currently generating");
-      }
-
-      // If wiki doesn't exist or is in STARTED / FAILED status, set to GENERATING
-      // STARTED is set by the API endpoint, this confirms actual processing has begun
-      return await wikiRepository.upsert(
-        new Wiki({
-          repository: Wiki.getRepositoryString(owner, repo),
-          status: WikiStatus.GENERATING,
-        })
-      );
-    });
-
-    // Step 2: Get repository info to find default branch
+    // Step 1: Get repository info to find default branch
     const defaultBranch = await step.run("get-default-branch", async () => {
       try {
         const repoInfo = await octokit.repos.get({
@@ -119,6 +97,32 @@ export const repositoryAnalyser = inngest.createFunction(
         throw error;
       }
     });
+
+    // Step 2: Update wiki status from STARTED to GENERATING and set the branch
+    const wiki = await step.run(
+      "set-generating-status-and-branch",
+      async () => {
+        const existingWiki = await wikiRepository.findOneByRepository(
+          owner,
+          repo
+        );
+
+        // If wiki is already generating, error to prevent duplicate processing
+        if (existingWiki && existingWiki.status === WikiStatus.GENERATING) {
+          throw new NonRetriableError("Wiki is currently generating");
+        }
+
+        // If wiki doesn't exist or is in STARTED / FAILED status, set to GENERATING
+        // STARTED is set by the API endpoint, this confirms actual processing has begun
+        return await wikiRepository.upsert(
+          new Wiki({
+            repository: Wiki.getRepositoryString(owner, repo),
+            status: WikiStatus.GENERATING,
+            branch: defaultBranch,
+          })
+        );
+      }
+    );
 
     // Step 3: Pull repository file tree
     const tree = await step.run("pull-repository-tree", async () => {

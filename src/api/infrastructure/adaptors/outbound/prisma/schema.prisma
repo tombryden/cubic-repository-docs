@@ -19,6 +19,7 @@ model Wiki {
     id         String     @id
     repository String     @unique
     status     WikiStatus
+    branch     String?
     pages      WikiPage[]
 }
 

@@ -59,7 +59,11 @@ export default function WikiPage({
 
             {/* Content Sections */}
             <div className="markdown-content">
-              <MarkdownRenderer owner={owner} repo={repo}>
+              <MarkdownRenderer
+                owner={owner}
+                repo={repo}
+                branch={pageData.branch ?? undefined}
+              >
                 {pageData.content}
               </MarkdownRenderer>
             </div>

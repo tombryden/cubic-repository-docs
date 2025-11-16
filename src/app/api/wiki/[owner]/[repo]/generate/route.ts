@@ -46,6 +46,7 @@ export async function POST(
       new Wiki({
         repository: Wiki.getRepositoryString(owner, repo),
         status: WikiStatus.STARTED,
+        branch: null, // Branch will be determined during Inngest processing
       })
     );
 

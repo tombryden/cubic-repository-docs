@@ -13,6 +13,7 @@ export class PrismaDomainMapper {
         id: prismaWiki.id,
         repository: prismaWiki.repository,
         status: prismaWiki.status as WikiStatus,
+        branch: prismaWiki.branch ?? null,
       });
     },
 
@@ -21,6 +22,7 @@ export class PrismaDomainMapper {
         id: wiki.id,
         repository: wiki.repository,
         status: wiki.status as PrismaWikiStatus,
+        branch: wiki.branch ?? null,
       };
     },
   };

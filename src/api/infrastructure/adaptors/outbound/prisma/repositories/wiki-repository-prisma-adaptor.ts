@@ -36,7 +36,7 @@ export class WikiRepositoryPrismaAdaptor implements WikiRepositoryPort {
     const upsertedWiki = await this.prisma.wiki.upsert({
       where: { repository: wiki.repository },
       create: wikiData,
-      update: { status: wiki.status },
+      update: { status: wiki.status, branch: wiki.branch },
     });
 
     return PrismaDomainMapper.wiki.toDomain(upsertedWiki);

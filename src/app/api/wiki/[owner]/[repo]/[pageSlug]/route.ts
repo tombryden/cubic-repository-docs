@@ -11,6 +11,7 @@ export interface GetWikiPageResponseDto {
   content: string;
   title: string;
   slug: string;
+  branch: string | null;
 }
 
 export async function GET(
@@ -32,9 +33,10 @@ export async function GET(
     }
 
     return createSuccessResponse<GetWikiPageResponseDto>({
-      content: res.markdownContent,
-      title: res.title,
-      slug: res.slug,
+      content: res.page.markdownContent,
+      title: res.page.title,
+      slug: res.page.slug,
+      branch: res.wiki.branch,
     });
   } catch (error) {
     return createErrorResponse(

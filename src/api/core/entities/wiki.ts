@@ -12,6 +12,7 @@ export class Wiki extends BaseEntity {
     super(data.id);
     this.repository = data.repository;
     this.status = data.status;
+    this.branch = data.branch;
   }
 
   /**
@@ -20,6 +21,11 @@ export class Wiki extends BaseEntity {
   repository: string;
 
   status: WikiStatus;
+
+  /**
+   * The git branch name used for this wiki (may be null if not yet determined)
+   */
+  branch: string | null;
 
   /**
    * Get the repository string in the format: owner/repo
