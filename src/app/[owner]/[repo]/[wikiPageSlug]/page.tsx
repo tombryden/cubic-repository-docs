@@ -6,7 +6,7 @@ import { RightSidebar } from "./_components/right-sidebar";
 import { WikiPageSkeleton } from "./_components/wiki-page-skeleton";
 import { useQuery } from "@tanstack/react-query";
 import type { GetWikiPageResponseDto } from "@/app/api/wiki/[owner]/[repo]/[pageSlug]/route";
-import { use } from "react";
+import { use, useEffect } from "react";
 
 export default function WikiPage({
   params,
@@ -14,6 +14,11 @@ export default function WikiPage({
   params: Promise<{ owner: string; repo: string; wikiPageSlug: string }>;
 }) {
   const { owner, repo, wikiPageSlug } = use(params);
+
+  // Scroll to top when the page slug changes
+  useEffect(() => {
+    window.scrollTo({ behavior: "instant", top: 0, left: 0 });
+  }, [wikiPageSlug]);
 
   const { data: pageData, isLoading } = useQuery<GetWikiPageResponseDto>({
     queryKey: [`wiki/${owner}/${repo}/${wikiPageSlug}`],
