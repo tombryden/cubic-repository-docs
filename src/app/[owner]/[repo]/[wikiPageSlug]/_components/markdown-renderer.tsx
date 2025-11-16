@@ -7,10 +7,7 @@ import remarkGfm from "remark-gfm";
  * Get the text content of the markdown children
  */
 function getTextContent(children: React.ReactNode): string {
-  if (typeof children !== "string") {
-    throw new Error("Children must be a string");
-  }
-  return children;
+  return children?.toString() ?? "";
 }
 
 /**
