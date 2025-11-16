@@ -1,6 +1,8 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
 import type { GetWikiResponseDto } from "@/app/api/wiki/[owner]/[repo]/pages/route";
 import type { GenerateWikiResponseDto } from "@/app/api/wiki/[owner]/[repo]/generate/route";
 import type { ApiResponse } from "@/api/infrastructure/adaptors/inbound/http/dtos/api-response";
@@ -23,6 +25,8 @@ export function KickoffWikiGeneration({
   children: React.ReactNode;
 }) {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
 
   const { data, isLoading } = useQuery<GetWikiResponseDto>({
     queryKey: [`wiki/${owner}/${repo}/pages`],
@@ -66,6 +70,17 @@ export function KickoffWikiGeneration({
       });
     },
   });
+
+  // Redirect to the first page if wiki is generated and we're on the root page
+  useEffect(() => {
+    if (
+      data?.wiki?.status === WikiStatus.GENERATED &&
+      data.pages.length > 0 &&
+      pathname === `/${owner}/${repo}`
+    ) {
+      router.replace(`/${owner}/${repo}/${data.pages[0].slug}`);
+    }
+  }, [data, owner, repo, pathname, router]);
 
   if (isLoading) {
     return (
