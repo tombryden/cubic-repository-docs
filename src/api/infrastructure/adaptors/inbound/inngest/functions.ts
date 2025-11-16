@@ -138,12 +138,7 @@ export const repositoryAnalyser = inngest.createFunction(
 
     // Step 4: Analyse the tree into user features with their corresponding files using AI.
     const analysis = await step.run("analyse-tree", async () => {
-      const tidiedTree = tree.data.tree
-        .map((item) => ({
-          type: item.type,
-          path: item.path,
-        }))
-        .join("\n");
+      const tidiedTree = tree.data.tree.map((item) => item.path).join("\n");
 
       const { object } = await generateObject({
         model: openai("gpt-5-mini"),
@@ -163,14 +158,19 @@ export const repositoryAnalyser = inngest.createFunction(
               description: z.string(),
               filePaths: z.array(z.string()).describe(
                 `
-                The file paths FROM THE <file_tree> xml tag sent by the user that are relevant to the page - these will be used to get the information to build the page.
+                The file paths that are relevant to the page - these will be used to get the information to build the page.
+
+                Available file paths are:
+                <files>
+                ${tidiedTree}
+                </files>
 
                 IMPORTANT:
                 Be generous when selecting file paths, the more file paths you select the more information you will have to build the page - select any files you think might be relevant. Pick maximum of 10 file paths.
 
                 You MUST choose at least 3 file paths.
 
-                Good examples of file paths:
+                Good examples of file paths (these are examples, not actual file paths):
                 \`src/components/Button.tsx\`
                 \`src/pages/Home.tsx\`
                 \`src/utils/helpers.ts\`
@@ -200,12 +200,7 @@ export const repositoryAnalyser = inngest.createFunction(
             content: `
               Analyse this GitHub repository ${owner}/${repo} and create a wiki structure for it.
 
-              1. The complete file tree of the project:
-              <file_tree>
-              ${tidiedTree}
-              </file_tree>
-
-              2. The README file of the project:
+              Here is the README file of the project:
               <readme>
               ${readme}
               </readme>
