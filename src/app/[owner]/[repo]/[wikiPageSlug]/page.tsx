@@ -50,7 +50,9 @@ export default async function WikiPage({
 
             {/* Content Sections */}
             <div className="markdown-content">
-              <MarkdownRenderer>{pageData.content}</MarkdownRenderer>
+              <MarkdownRenderer owner={owner} repo={repo}>
+                {pageData.content}
+              </MarkdownRenderer>
             </div>
 
             {/* Navigation Footer */}
@@ -74,5 +76,4 @@ export default async function WikiPage({
       </>
     );
   }
-  console.log(data);
 }

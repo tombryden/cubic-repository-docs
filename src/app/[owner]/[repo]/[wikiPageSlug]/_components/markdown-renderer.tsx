@@ -13,7 +13,55 @@ function getTextContent(children: React.ReactNode): string {
   return children;
 }
 
-export function MarkdownRenderer({ children }: { children: string }) {
+/**
+ * Parse inline citations and convert them to GitHub links
+ * Format: [filepath:startLine-endLine;anotherfile:startLine-endLine]
+ * Example: [README.md:1-2;README.md:4-9]
+ */
+function processCitations(
+  content: string,
+  owner: string,
+  repo: string,
+  branch: string = "main"
+): string {
+  // Match citations in the format [filepath:startLine-endLine;...]
+  const citationRegex = /\[([^\]]+:[0-9]+-[0-9]+(?:;[^\]]+:[0-9]+-[0-9]+)*)\]/g;
+
+  return content.replace(citationRegex, (match, citationsGroup) => {
+    // Split multiple citations by semicolon
+    const citations = citationsGroup.split(";");
+
+    // Convert each citation to a markdown link
+    const links = citations.map((citation: string) => {
+      const parts = citation.trim().match(/^(.+):([0-9]+)-([0-9]+)$/);
+      if (!parts) return citation; // Return as-is if format is invalid
+
+      const [, filepath, startLine, endLine] = parts;
+      const githubUrl = `https://github.com/${owner}/${repo}/blob/${branch}/${filepath}#L${startLine}-L${endLine}`;
+
+      // Create a descriptive link text
+      const linkText = `${filepath}:${startLine}-${endLine}`;
+      return `[${linkText}](${githubUrl})`;
+    });
+
+    // Join multiple citations with a comma and space
+    return links.join(", ");
+  });
+}
+
+export function MarkdownRenderer({
+  children,
+  owner,
+  repo,
+  branch = "main",
+}: {
+  children: string;
+  owner: string;
+  repo: string;
+  branch?: string;
+}) {
+  // Process citations before rendering
+  const processedContent = processCitations(children, owner, repo, branch);
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
@@ -117,9 +165,29 @@ export function MarkdownRenderer({ children }: { children: string }) {
             </div>
           </blockquote>
         ),
+        a: ({ href, children }) => {
+          // Check if this is a GitHub file reference link (citation)
+          const isCitation =
+            href?.includes("github.com") && href?.includes("#L");
+
+          return (
+            <a
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={
+                isCitation
+                  ? "inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono bg-violet-500/10 text-violet-600 dark:text-violet-400 hover:bg-violet-500/20 border border-violet-500/20 transition-colors no-underline"
+                  : "text-blue-600 dark:text-blue-400 hover:underline"
+              }
+            >
+              {children}
+            </a>
+          );
+        },
       }}
     >
-      {children}
+      {processedContent}
     </ReactMarkdown>
   );
 }
