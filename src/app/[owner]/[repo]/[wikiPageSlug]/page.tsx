@@ -1,29 +1,34 @@
+"use client";
+
 import { getGithubUrl } from "@/lib/utils";
 import { MarkdownRenderer } from "./_components/markdown-renderer";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { RightSidebar } from "./_components/right-sidebar";
-import { ENV } from "@/lib/vars";
-import { GetWikiPageResponseDto } from "@/app/api/wiki/[owner]/[repo]/[pageSlug]/route";
+import { useQuery } from "@tanstack/react-query";
+import type { GetWikiPageResponseDto } from "@/app/api/wiki/[owner]/[repo]/[pageSlug]/route";
+import { use } from "react";
 
-export default async function WikiPage({
+export default function WikiPage({
   params,
 }: {
   params: Promise<{ owner: string; repo: string; wikiPageSlug: string }>;
 }) {
-  const { owner, repo, wikiPageSlug } = await params;
+  const { owner, repo, wikiPageSlug } = use(params);
 
-  const resp = await fetch(
-    `${ENV.API_URL}/wiki/${owner}/${repo}/${wikiPageSlug}`
-  );
-  const data = await resp.json();
-  if (!data.success) {
+  const { data: pageData, isLoading } = useQuery<GetWikiPageResponseDto>({
+    queryKey: [`wiki/${owner}/${repo}/${wikiPageSlug}`],
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!pageData) {
     return <div>Page not found!</div>;
   }
 
-  if (data.success) {
-    const pageData: GetWikiPageResponseDto = data.data;
-
+  if (pageData) {
     return (
       <>
         {/* Main Content */}
