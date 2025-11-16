@@ -102,14 +102,31 @@ export const repositoryAnalyser = inngest.createFunction(
       );
     });
 
-    // Step 2: Pull repository file tree
+    // Step 2: Get repository info to find default branch
+    const defaultBranch = await step.run("get-default-branch", async () => {
+      try {
+        const repoInfo = await octokit.repos.get({
+          owner,
+          repo,
+        });
+        return repoInfo.data.default_branch;
+      } catch (error) {
+        if (error instanceof Error && "status" in error) {
+          if (error.status === 404) {
+            throw new NonRetriableError("Repository not found");
+          }
+        }
+        throw error;
+      }
+    });
+
+    // Step 3: Pull repository file tree
     const tree = await step.run("pull-repository-tree", async () => {
       try {
-        // Check the github url exists
         const repoResponse = await octokit.git.getTree({
           owner,
           repo,
-          tree_sha: "main",
+          tree_sha: defaultBranch,
           recursive: "true",
         });
 
@@ -127,7 +144,9 @@ export const repositoryAnalyser = inngest.createFunction(
 
         if (error instanceof Error && "status" in error) {
           if (error.status === 404) {
-            throw new NonRetriableError("Repository not found");
+            throw new NonRetriableError(
+              `Branch '${defaultBranch}' not found in repository`
+            );
           }
         }
 
@@ -136,7 +155,7 @@ export const repositoryAnalyser = inngest.createFunction(
       }
     });
 
-    // Step 3: Pull the README file
+    // Step 4: Pull the README file
     const readme = await step.run("pull-readme", async () => {
       try {
         const readmeResponse = await octokit.repos.getReadme({
@@ -163,7 +182,7 @@ export const repositoryAnalyser = inngest.createFunction(
       }
     });
 
-    // Step 4: Analyse the tree into user features with their corresponding files using AI.
+    // Step 5: Analyse the tree into user features with their corresponding files using AI.
     const analysis = await step.run("analyse-tree", async () => {
       const tidiedTree = tree.data.tree.map((item) => item.path).join("\n");
 
@@ -253,7 +272,7 @@ export const repositoryAnalyser = inngest.createFunction(
       return object;
     });
 
-    // Step 5: fan out the wiki generation for each page and wait for completion
+    // Step 6: fan out the wiki generation for each page and wait for completion
     await Promise.all(
       analysis.pages.map((page, index) =>
         step.invoke(`generate-page-${index}`, {
@@ -270,7 +289,7 @@ export const repositoryAnalyser = inngest.createFunction(
       )
     );
 
-    // Step 6: All pages generated, update wiki status
+    // Step 7: All pages generated, update wiki status
     await step.run("update-wiki-status", async () => {
       return await wikiRepository.updateStatus(wiki.id, WikiStatus.GENERATED);
     });
