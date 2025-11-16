@@ -9,6 +9,7 @@ import { Header } from "../header";
 import { getGithubUrl } from "@/lib/utils";
 import { LeftSidebar } from "../left-sidebar";
 import { WikiStatus } from "@/api/core/entities/wiki";
+import { Spinner } from "@/components/ui/spinner";
 
 export function KickoffWikiGeneration({
   owner,
@@ -31,7 +32,13 @@ export function KickoffWikiGeneration({
     },
   });
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
 
   if (!data?.wiki) return <WikiEmptyState owner={owner} repo={repo} />;
 

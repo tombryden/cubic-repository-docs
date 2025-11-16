@@ -1,4 +1,5 @@
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 export function WikiGeneratingState() {
   return (
@@ -11,7 +12,7 @@ export function WikiGeneratingState() {
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse" />
               <div className="relative bg-primary/10 p-6 rounded-2xl border border-primary/20">
-                <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                <Spinner className="w-12 h-12 text-primary" />
               </div>
             </div>
           </div>
