@@ -19,4 +19,10 @@ export interface WikiPageRepositoryPort {
    * @param repo The repository name
    */
   findByRepository(owner: string, repo: string): Promise<WikiPage[]>;
+
+  /**
+   * Insert a wiki page into the database
+   * @param wikiPage The wiki page to insert
+   */
+  insert(wikiPage: WikiPage): Promise<WikiPage>;
 }

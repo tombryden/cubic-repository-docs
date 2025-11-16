@@ -32,4 +32,12 @@ export class WikiPageRepositoryPrismaAdaptor implements WikiPageRepositoryPort {
 
     return pages.map(PrismaDomainMapper.wikiPage.toDomain);
   }
+
+  async insert(wikiPage: WikiPage): Promise<WikiPage> {
+    const newPage = await this.prisma.wikiPage.create({
+      data: PrismaDomainMapper.wikiPage.fromDomain(wikiPage),
+    });
+
+    return PrismaDomainMapper.wikiPage.toDomain(newPage);
+  }
 }

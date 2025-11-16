@@ -9,10 +9,16 @@ import { container } from "tsyringe";
 import { DI } from "@/api/infrastructure/di-tokens";
 import { WikiRepositoryPort } from "@/api/core/ports/outbound/wiki-repository-port";
 import { Wiki, WikiStatus } from "@/api/core/entities/wiki";
+import { WikiPageRepositoryPort } from "@/api/core/ports/outbound/wiki-page-repository-port";
+import { WikiPage } from "@/api/core/entities/wiki-page";
+import { getSlug } from "@/api/infrastructure/utils";
 
 // Repositories
 const wikiRepository = container.resolve<WikiRepositoryPort>(
   DI.WIKI_REPOSITORY
+);
+const wikiPageRepository = container.resolve<WikiPageRepositoryPort>(
+  DI.WIKI_PAGE_REPOSITORY
 );
 
 const octokit = new Octokit({
@@ -31,6 +37,7 @@ const wikiPageGenerationEventSchema = z.object({
   filePaths: z.array(z.string()).min(1, "At least one file path is required"),
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
+  order: z.number().min(0, "Order must be a non-negative number"),
 });
 
 export const repositoryAnalyser = inngest.createFunction(
@@ -59,8 +66,8 @@ export const repositoryAnalyser = inngest.createFunction(
         throw new NonRetriableError("Wiki is currently generating");
       }
 
-      // Create wiki with 'generating' status
-      return await wikiRepository.insert(
+      // Create or update wiki with 'generating' status
+      return await wikiRepository.upsert(
         new Wiki({
           repository: Wiki.getRepositoryString(owner, repo),
           status: WikiStatus.GENERATING,
@@ -224,20 +231,27 @@ export const repositoryAnalyser = inngest.createFunction(
       return object;
     });
 
-    // Step 5: fan out the wiki generation for each page
-    await step.sendEvent(
-      "send-wiki-page-generation-events",
-      analysis.pages.map((page) => ({
-        name: "reposcribe/wiki-page-generation",
-        data: {
-          owner,
-          repo,
-          filePaths: page.filePaths,
-          title: page.name,
-          description: page.description,
-        } satisfies z.infer<typeof wikiPageGenerationEventSchema>,
-      }))
+    // Step 5: fan out the wiki generation for each page and wait for completion
+    await Promise.all(
+      analysis.pages.map((page, index) =>
+        step.invoke(`generate-page-${index}`, {
+          function: wikiGenerator,
+          data: {
+            owner,
+            repo,
+            filePaths: page.filePaths,
+            title: page.name,
+            description: page.description,
+            order: index,
+          } satisfies z.infer<typeof wikiPageGenerationEventSchema>,
+        })
+      )
     );
+
+    // Step 6: All pages generated, update wiki status
+    await step.run("update-wiki-status", async () => {
+      return await wikiRepository.updateStatus(wiki.id, WikiStatus.GENERATED);
+    });
 
     return analysis;
   }
@@ -263,7 +277,7 @@ export const wikiGenerator = inngest.createFunction(
         `Invalid event data: ${validationResult.error.message}`
       );
     }
-    const { owner, repo, filePaths, title, description } =
+    const { owner, repo, filePaths, title, description, order } =
       validationResult.data;
 
     // because TS isn't picking up the type
@@ -411,7 +425,29 @@ Generate ONLY the markdown content for the wiki page body.
     });
 
     // Step 3: Save page to database
-    await step.run("save-page", async () => {});
+    await step.run("save-page", async () => {
+      // Get the wiki to retrieve the wikiId
+      const wiki = await wikiRepository.findOneByRepository(owner, repo);
+      if (!wiki) {
+        throw new NonRetriableError(
+          `Wiki not found for repository ${owner}/${repo}`
+        );
+      }
+
+      // Create slug from title
+      const slug = getSlug(title);
+
+      // Create and insert the new wiki page
+      const wikiPage = new WikiPage({
+        wikiId: wiki.id,
+        title,
+        slug,
+        markdownContent: content,
+        order,
+      });
+
+      return await wikiPageRepository.insert(wikiPage);
+    });
 
     return { content, fileContents };
   }

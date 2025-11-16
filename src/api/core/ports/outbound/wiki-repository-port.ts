@@ -1,4 +1,4 @@
-import { Wiki } from "../../entities/wiki";
+import { Wiki, WikiStatus } from "../../entities/wiki";
 
 export interface WikiRepositoryPort {
   /**
@@ -17,8 +17,15 @@ export interface WikiRepositoryPort {
   findOneByRepository(owner: string, repo: string): Promise<Wiki | null>;
 
   /**
-   * Insert a wiki into the database
-   * @param wiki The wiki to insert
+   * Upsert a wiki (insert or update if exists)
+   * @param wiki The wiki to upsert
    */
-  insert(wiki: Wiki): Promise<Wiki>;
+  upsert(wiki: Wiki): Promise<Wiki>;
+
+  /**
+   * Update the status of a wiki
+   * @param wikiId The wiki ID
+   * @param status The new status
+   */
+  updateStatus(wikiId: string, status: WikiStatus): Promise<Wiki>;
 }
